@@ -97,12 +97,29 @@ sub find_empty_content {
     }
 }
 
+sub find_new_versions {
+    foreach my $file1 (@_) {
+        foreach my $file2 (@_) {
+            next if $file1->{path} eq $file2->{path};
+            if ($file1->{name} eq $file2->{name}) {
+                if ($file1->{date} < $file2->{date}) {
+                    push @{$file1->{suggestions}}, {
+                        "type", 3,
+                        "path", $file2->{path}
+                    }
+                }
+            }
+        }
+    }
+}
+
 ### RUN ###
 
 ls($data_dir);
 
 find_same_content(@files);
 find_empty_content(@files);
+find_new_versions(@files);
 
 foreach (@files) {
     print Dumper($_), "\n";
