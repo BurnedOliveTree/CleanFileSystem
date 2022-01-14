@@ -5,15 +5,21 @@ use autodie;
 
 print "Hello World!\n";
 
+sub ls {
+    foreach (@_) {
+        my $iter = $_->iterator;
+        while (my $file = $iter->()) {
+            ls($file) if $file->is_dir();
+            print "$file\n";
+        }
+    }
+}
+
 my $config = path($ENV{"HOME"}, ".clean_files");
 my $data_dir = path("./data");
 my $origin_dir = path("./data/origin");
 
-my $iter = $origin_dir->iterator;
-while (my $file = $iter->()) {
-    next if $file->is_dir();
-    print "$file\n";
-}
+ls($data_dir);
 
 # TODO: origin_dir should have all the files
 # TODO: suggestion to user - delete all copies: files that have the same content as another, and have a later creation date
