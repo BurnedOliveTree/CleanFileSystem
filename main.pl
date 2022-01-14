@@ -65,8 +65,23 @@ sub ls {
                     "path", $file->stringify(),
                     "content", $file->slurp_utf8(),
                     "attributes", stat($file)->mode & 0777, # this will show in decimal when printed
-                    "date", stat($file)->mtime
+                    "date", stat($file)->mtime,
+                    "suggestions", ()
                 };
+            }
+        }
+    }
+}
+
+sub find_same_content {
+    foreach my $file1 (@_) {
+        foreach my $file2 (@_) {
+            next if $file1->{path} eq $file2->{path};
+            if ($file1->{content} eq $file2->{content}) {
+                push @{$file1->{suggestions}}, {
+                    "type", 1,
+                    "path", $file2->{path}
+                }
             }
         }
     }
@@ -75,6 +90,8 @@ sub ls {
 ### RUN ###
 
 ls($data_dir);
+
+find_same_content(@files);
 
 foreach (@files) {
     print Dumper($_), "\n";
