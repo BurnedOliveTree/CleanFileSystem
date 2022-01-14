@@ -38,7 +38,7 @@ sub ls {
                     "name", basename($file),
                     "path", $file->stringify(),
                     "content", $file->slurp_utf8(),
-                    "attributes", stat($file)->mode & 0777,
+                    "attributes", stat($file)->mode & 0777, # this will show in decimal when printed
                     "date", stat($file)->mtime
                 };
             }
