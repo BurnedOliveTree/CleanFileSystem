@@ -87,11 +87,22 @@ sub find_same_content {
     }
 }
 
+sub find_empty_content {
+    foreach my $file1 (@_) {
+        if (($file1->{content}) eq '') {
+            push @{$file1->{suggestions}}, {
+                "type", 2
+            }
+        }
+    }
+}
+
 ### RUN ###
 
 ls($data_dir);
 
 find_same_content(@files);
+find_empty_content(@files);
 
 foreach (@files) {
     print Dumper($_), "\n";
