@@ -5,12 +5,30 @@ use autodie;
 
 print "Hello World!\n";
 
+# [
+#     {
+#         name: string,
+#         path: string,
+#         content: string,
+#         attributes: string,
+#         date: string,
+#         suggestions: [
+#             {
+#                 type: int,
+#                 TODO XD
+#             }
+#         ]
+#     }
+# ]
+
+my @files = ();
+
 sub ls {
     foreach (@_) {
         my $iter = $_->iterator;
         while (my $file = $iter->()) {
             ls($file) if $file->is_dir();
-            print "$file\n";
+            push @files, $file;
         }
     }
 }
@@ -20,6 +38,7 @@ my $data_dir = path("./data");
 my $origin_dir = path("./data/origin");
 
 ls($data_dir);
+print "@files\n";
 
 # TODO: origin_dir should have all the files
 # TODO: suggestion to user - delete all copies: files that have the same content as another, and have a later creation date
@@ -33,7 +52,7 @@ ls($data_dir);
 #           empty files
 #           newer file versions with identical names (and they don't have to be in the same path)
 #           temporary files (* ̃, *.tmp, and other extensions defined by user)
-#           files with "unusual" attributer, for example: rwxrwxrwx
+#           files with "unusual" attributes, for example: rwxrwxrwx
 #           files containing restricted signs
 
 # TODO: For each found file, the script should suggest an action:
