@@ -2,6 +2,7 @@ use strict;
 use warnings;
 use Path::Tiny;
 use autodie;
+use Data::Dumper;
 
 print "Hello World!\n";
 
@@ -27,8 +28,11 @@ sub ls {
     foreach (@_) {
         my $iter = $_->iterator;
         while (my $file = $iter->()) {
-            ls($file) if $file->is_dir();
-            push @files, $file;
+            if ($file->is_dir()) {
+                ls($file);
+            } else {
+                push @files, {"path", $file->stringify(), "content", $file->slurp_utf8()};
+            }
         }
     }
 }
@@ -38,7 +42,10 @@ my $data_dir = path("./data");
 my $origin_dir = path("./data/origin");
 
 ls($data_dir);
-print "@files\n";
+
+foreach (@files) {
+    print Dumper($_), "\n";
+}
 
 # TODO: origin_dir should have all the files
 # TODO: suggestion to user - delete all copies: files that have the same content as another, and have a later creation date
