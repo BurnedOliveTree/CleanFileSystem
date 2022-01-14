@@ -14,7 +14,6 @@ print "Hello World!\n";
 # my $config = path($ENV{"HOME"}, ".clean_files");
 my $config_path = path(".clean_files");
 my %config = ();
-print $config_path;
 
 open (_FH, $config_path) or die "Unable to open config file: $!";
 while (<_FH>) {
@@ -24,7 +23,11 @@ while (<_FH>) {
     s/\s+$//;               # no trailing white
     next unless length;     # anything left?
     my ($var, $value) = split(/\s*=\s*/, $_, 2);
-    $config{$var} = $value;
+    if ($var eq 'TEMPORARY') {
+        $config{$var} = [split(',', $value)];
+    } else {
+        $config{$var} = $value;
+    }
 }
 close _FH;
 print Dumper(%config);
@@ -113,6 +116,18 @@ sub find_new_versions {
     }
 }
 
+sub find_temporary {
+    foreach my $file1 (@_) {
+        foreach (@{$config{TEMPORARY}}) {
+            if ($file1->{name} =~ /\Q$_\E\z/) {
+                push @{$file1->{suggestions}}, {
+                    "type", 4
+                }
+            }
+        }
+    }
+}
+
 ### RUN ###
 
 ls($data_dir);
@@ -120,6 +135,7 @@ ls($data_dir);
 find_same_content(@files);
 find_empty_content(@files);
 find_new_versions(@files);
+find_temporary(@files);
 
 foreach (@files) {
     print Dumper($_), "\n";
