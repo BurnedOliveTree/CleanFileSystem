@@ -128,6 +128,16 @@ sub find_temporary {
     }
 }
 
+sub find_unusual_attributes {
+    foreach my $file1 (@_) {
+        if ($file1->{attributes} == 511) { # TODO: add other weird attributes
+            push @{$file1->{suggestions}}, {
+                "type", 5
+            }
+        }
+    }
+}
+
 ### RUN ###
 
 ls($data_dir);
@@ -136,6 +146,7 @@ find_same_content(@files);
 find_empty_content(@files);
 find_new_versions(@files);
 find_temporary(@files);
+find_unusual_attributes(@files);
 
 foreach (@files) {
     print Dumper($_), "\n";
