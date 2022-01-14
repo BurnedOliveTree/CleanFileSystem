@@ -1,8 +1,11 @@
 use strict;
 use warnings;
-use Path::Tiny;
 use autodie;
+
 use Data::Dumper;
+use File::Basename;
+use File::stat;
+use Path::Tiny;
 
 print "Hello World!\n";
 
@@ -11,8 +14,8 @@ print "Hello World!\n";
 #         name: string,
 #         path: string,
 #         content: string,
-#         attributes: string,
-#         date: string,
+#         attributes: int,
+#         date: int,
 #         suggestions: [
 #             {
 #                 type: int,
@@ -31,7 +34,13 @@ sub ls {
             if ($file->is_dir()) {
                 ls($file);
             } else {
-                push @files, {"path", $file->stringify(), "content", $file->slurp_utf8()};
+                push @files, {
+                    "name", basename($file),
+                    "path", $file->stringify(),
+                    "content", $file->slurp_utf8(),
+                    "attributes", stat($file)->mode & 0777,
+                    "date", stat($file)->mtime
+                };
             }
         }
     }
