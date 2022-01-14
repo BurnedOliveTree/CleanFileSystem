@@ -73,34 +73,20 @@ sub ls {
     }
 }
 
-sub find_same_content {
+sub find {
     foreach my $file1 (@_) {
         foreach my $file2 (@_) {
             next if $file1->{path} eq $file2->{path};
+
+            # check if two files have the same content
             if ($file1->{content} eq $file2->{content}) {
                 push @{$file1->{suggestions}}, {
                     "type", 1,
                     "path", $file2->{path}
                 }
             }
-        }
-    }
-}
 
-sub find_empty_content {
-    foreach my $file1 (@_) {
-        if (($file1->{content}) eq '') {
-            push @{$file1->{suggestions}}, {
-                "type", 2
-            }
-        }
-    }
-}
-
-sub find_new_versions {
-    foreach my $file1 (@_) {
-        foreach my $file2 (@_) {
-            next if $file1->{path} eq $file2->{path};
+            # check if there is a newer version of a file with the same name
             if ($file1->{name} eq $file2->{name}) {
                 if ($file1->{date} < $file2->{date}) {
                     push @{$file1->{suggestions}}, {
@@ -110,11 +96,15 @@ sub find_new_versions {
                 }
             }
         }
-    }
-}
 
-sub find_temporary {
-    foreach my $file1 (@_) {
+        # check if file is empty
+        if (($file1->{content}) eq '') {
+            push @{$file1->{suggestions}}, {
+                "type", 2
+            }
+        }
+
+        # check if file is considered as a temporary file
         foreach (@{$config{TEMPORARY}}) {
             if ($file1->{name} =~ /\Q$_\E\z/) {
                 push @{$file1->{suggestions}}, {
@@ -122,21 +112,15 @@ sub find_temporary {
                 }
             }
         }
-    }
-}
 
-sub find_unusual_attributes {
-    foreach my $file1 (@_) {
+        # check if this file has unusual attributes
         if ($file1->{attributes} == 511) { # TODO: add other weird attributes
             push @{$file1->{suggestions}}, {
                 "type", 5
             }
         }
-    }
-}
 
-sub find_restricted_names {
-    foreach my $file1 (@_) {
+        # check if file name has restricted characters in it
         foreach (@{$config{RESTRICTED}}) {
             if ($file1->{name} =~ m/\Q$_\E/) {
                 push @{$file1->{suggestions}}, {
@@ -162,14 +146,7 @@ sub suggest {
 ### RUN ###
 
 ls($data_dir);
-
-find_same_content(@files);
-find_empty_content(@files);
-find_new_versions(@files);
-find_temporary(@files);
-find_unusual_attributes(@files);
-find_restricted_names(@files);
-
+find(@files);
 show(@files);
 suggest(@files);
 
