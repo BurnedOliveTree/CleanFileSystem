@@ -23,7 +23,7 @@ while (<_FH>) {
     s/\s+$//;               # no trailing white
     next unless length;     # anything left?
     my ($var, $value) = split(/\s*=\s*/, $_, 2);
-    if ($var eq 'TEMPORARY') {
+    if (($var eq 'TEMPORARY') || ($var eq 'RESTRICTED')) {
         $config{$var} = [split(',', $value)];
     } else {
         $config{$var} = $value;
@@ -138,6 +138,18 @@ sub find_unusual_attributes {
     }
 }
 
+sub find_restricted_names {
+    foreach my $file1 (@_) {
+        foreach (@{$config{RESTRICTED}}) {
+            if ($file1->{name} =~ m/\Q$_\E/) {
+                push @{$file1->{suggestions}}, {
+                    "type", 6
+                }
+            }
+        }
+    }
+}
+
 ### RUN ###
 
 ls($data_dir);
@@ -147,6 +159,7 @@ find_empty_content(@files);
 find_new_versions(@files);
 find_temporary(@files);
 find_unusual_attributes(@files);
+find_restricted_names(@files);
 
 foreach (@files) {
     print Dumper($_), "\n";
@@ -165,7 +178,7 @@ foreach (@files) {
 #           newer file versions with identical names (and they don't have to be in the same path)
 #           temporary files (* ̃, *.tmp, and other extensions defined by user)
 #           files with "unusual" attributes, for example: rwxrwxrwx
-#           files containing restricted signs
+#           file names containing restricted signs
 
 # TODO: For each found file, the script should suggest an action:
 #           moving / coping to an "apriopate" location in the origin_dir
