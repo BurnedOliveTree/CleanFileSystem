@@ -9,6 +9,32 @@ use Path::Tiny;
 
 print "Hello World!\n";
 
+### READ CONFIG ###
+
+# my $config = path($ENV{"HOME"}, ".clean_files");
+my $config_path = path(".clean_files");
+my %config = ();
+print $config_path;
+
+open (_FH, $config_path) or die "Unable to open config file: $!";
+while (<_FH>) {
+    chomp;                  # no newline
+    s/#.*//;                # no comments
+    s/^\s+//;               # no leading white
+    s/\s+$//;               # no trailing white
+    next unless length;     # anything left?
+    my ($var, $value) = split(/\s*=\s*/, $_, 2);
+    $config{$var} = $value;
+}
+close _FH;
+print Dumper(%config);
+
+### INITIALIZE MAIN VARIABLES ###
+
+my @files = ();
+my $origin_dir = path($config{ORIGIN_DIR});
+my $data_dir = path($config{DATA_DIR});
+
 # [
 #     {
 #         name: string,
@@ -25,7 +51,6 @@ print "Hello World!\n";
 #     }
 # ]
 
-my @files = ();
 
 sub ls {
     foreach (@_) {
@@ -46,9 +71,7 @@ sub ls {
     }
 }
 
-my $config = path($ENV{"HOME"}, ".clean_files");
-my $data_dir = path("./data");
-my $origin_dir = path("./data/origin");
+### RUN ###
 
 ls($data_dir);
 

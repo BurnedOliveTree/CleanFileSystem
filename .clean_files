@@ -1,0 +1,6 @@
+ATTRIBUTES = 0o644
+RESTRICTED = [:, ”, ‘, ., ;, *, ?, $, |, \]
+REPLACE    = _
+TEMPORARY  = [.tmp, .temp]
+ORIGIN_DIR = ./data/origin
+DATA_DIR   = ./data
