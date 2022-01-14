@@ -7,8 +7,6 @@ use File::Basename;
 use File::stat;
 use Path::Tiny;
 
-print "Hello World!\n";
-
 ### READ CONFIG ###
 
 # my $config = path($ENV{"HOME"}, ".clean_files");
@@ -30,7 +28,6 @@ while (<_FH>) {
     }
 }
 close _FH;
-print Dumper(%config);
 
 ### INITIALIZE MAIN VARIABLES ###
 
@@ -150,6 +147,18 @@ sub find_restricted_names {
     }
 }
 
+sub show {
+    print Dumper(@files), "\n";
+}
+
+sub suggest {
+    foreach my $file (@files) {
+        foreach (@{$file->{suggestions}}) {
+            print "Would you like to ", $_->{type}, " in ", $file->{path}, "?\n"
+        }
+    }
+}
+
 ### RUN ###
 
 ls($data_dir);
@@ -161,9 +170,8 @@ find_temporary(@files);
 find_unusual_attributes(@files);
 find_restricted_names(@files);
 
-foreach (@files) {
-    print Dumper($_), "\n";
-}
+show(@files);
+suggest(@files);
 
 # TODO: origin_dir should have all the files
 # TODO: suggestion to user - delete all copies: files that have the same content as another, and have a later creation date
