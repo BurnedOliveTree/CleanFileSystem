@@ -35,6 +35,8 @@ my @files = ();
 my $origin_dir = path($config{ORIGIN_DIR});
 my $data_dir = path($config{DATA_DIR});
 
+### INITIALIZE SUBROUTINES ###
+
 # [
 #     {
 #         name: string,
@@ -50,7 +52,6 @@ my $data_dir = path($config{DATA_DIR});
 #         ]
 #     }
 # ]
-
 
 sub ls {
     foreach (@_) {
