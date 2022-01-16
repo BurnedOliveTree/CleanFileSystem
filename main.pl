@@ -33,6 +33,7 @@ close _FH;
 ### INITIALIZE MAIN VARIABLES ###
 
 my @files = ();
+my @deleted = ();
 my $origin_dir = path($config{ORIGIN_DIR});
 my $data_dir = path($config{DATA_DIR});
 
@@ -129,33 +130,48 @@ sub show {
     print Dumper(@files), "\n";
 }
 
+sub delete_files_and_suggestions {
+    foreach (@_) {
+        unlink ($_->{path});
+        push @deleted, $_->{path};
+        print "deleted ", $_->{path}, "\n";
+    }
+}
+
 sub suggest {
     foreach my $file (@files) {
         foreach my $suggestion (@{$file->{suggestions}}) {
+            next if ($file->{path} ~~ @deleted);
             given ($suggestion->{type}) {
                 when (1) {
-                    print "Would you like to delete ", $suggestion->{path}, ", which has the same content as ", $file->{path}, "?\n"
+                    print "Would you like to delete ", $suggestion->{path}, ", which has the same content as ", $file->{path}, "? [y/n]\n";
                 }
                 when (2) {
-                    print "Would you like to delete ", $file->{path}, ", which is an empty file?\n"
+                    print "Would you like to delete ", $file->{path}, ", which is an empty file? [y/n]\n";
+                    if ("y\n" eq <STDIN>) {
+                        delete_files_and_suggestions($file);
+                    }
                 }
                 when (3) {
-                    print "Would you like to delete ", $file->{path}, ", which appears to be an older version of ", $suggestion->{path}, "?\n"
+                    print "Would you like to delete ", $file->{path}, ", which appears to be an older version of ", $suggestion->{path}, "? [y/n]\n";
                 }
                 when (4) {
-                    print "Would you like to delete ", $file->{path}, ", which is considered a temporary file?\n"
+                    print "Would you like to delete ", $file->{path}, ", which is considered a temporary file? [y/n]\n";
+                    if ("y\n" eq <STDIN>) {
+                        delete_files_and_suggestions($file);
+                    }
                 }
                 when (5) {
-                    print "Would you like to change the attributes of ", $file->{path}, ", to a more standard one?\n"
+                    print "Would you like to change the attributes of ", $file->{path}, ", to a more standard one? [y/n]\n";
                 }
                 when (6) {
-                    print "Would you like to change the name of ", $file->{path}, ", which contains signs that are considered restricted?\n"
+                    print "Would you like to change the name of ", $file->{path}, ", which contains signs that are considered restricted? [y/n]\n";
                 }
                 when (7) {
-                    print "Would you like to move ", $file->{path}, ", to, ", $config{ORIGIN_DIR}, "?\n"
+                    print "Would you like to move ", $file->{path}, ", to, ", $config{ORIGIN_DIR}, "? [y/n]\n";
                 }
                 default {
-                    print "This suggestion has not been implemented yet!\n"
+                    print "This suggestion has not been implemented yet!\n";
                 }
             }
         }
@@ -166,7 +182,7 @@ sub suggest {
 
 ls($data_dir);
 find(@files);
-show(@files);
+# show(@files);
 suggest(@files);
 
 # TODO: origin_dir should have all the files

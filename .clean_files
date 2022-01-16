@@ -1,4 +1,4 @@
-ATTRIBUTES = 0o644
+ATTRIBUTES = 420
 RESTRICTED = :,”,‘,;,*,?,$,|,\
 REPLACE    = _
 TEMPORARY  = .tmp,.temp
