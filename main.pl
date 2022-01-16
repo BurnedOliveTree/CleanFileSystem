@@ -38,22 +38,6 @@ my $data_dir = path($config{DATA_DIR});
 
 ### INITIALIZE SUBROUTINES ###
 
-# [
-#     {
-#         name: string,
-#         path: string,
-#         content: string,
-#         attributes: int,
-#         date: int,
-#         suggestions: [
-#             {
-#                 type: int,
-#                 TODO XD
-#             }
-#         ]
-#     }
-# ]
-
 sub ls {
     foreach (@_) {
         my $iter = $_->iterator;
@@ -191,14 +175,3 @@ suggest(@files);
 # TODO: suggestion to user - in case of the same file name, suggest keeping only the newer one
 # TODO: suggestion to user - standarize file attributes, for example: rw-r–r–,
 # TODO: suggestion to user - change file name in case it contains restricted signs (for example ’:’, ’”’, ’.’, ’;’, ’*’, ’?’, ’$’, ’#’, ’‘’, ’|’, ’\’, ...) and replace them with a common substitute (for example ’_’)
-
-# TODO: Script should be able to find:
-#           files containing identical content (and they don't have to have the same name or path)
-#           empty files
-#           newer file versions with identical names (and they don't have to be in the same path)
-#           temporary files (* ̃, *.tmp, and other extensions defined by user)
-#           files with "unusual" attributes, for example: rwxrwxrwx
-#           file names containing restricted signs
-
-# TODO: For each found file, the script should suggest an action:
-#           moving / coping to an "apriopate" location in the origin_dir
