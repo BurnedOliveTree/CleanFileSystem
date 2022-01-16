@@ -6,6 +6,7 @@ use Data::Dumper;
 use File::Basename;
 use File::stat;
 use Path::Tiny;
+use feature qw(switch);
 
 ### READ CONFIG ###
 
@@ -80,9 +81,11 @@ sub find {
 
             # check if two files have the same content
             if ($file1->{content} eq $file2->{content}) {
-                push @{$file1->{suggestions}}, {
-                    "type", 1,
-                    "path", $file2->{path}
+                if ($file1->{date} < $file2->{date}) {
+                    push @{$file1->{suggestions}}, {
+                        "type", 1,
+                        "path", $file2->{path}
+                    }
                 }
             }
 
@@ -113,8 +116,8 @@ sub find {
             }
         }
 
-        # check if this file has unusual attributes
-        if ($file1->{attributes} == 511) { # TODO: add other weird attributes
+        # check if this file has non-standard attributes
+        if ($file1->{attributes} != $config{ATTRIBUTES}) {
             push @{$file1->{suggestions}}, {
                 "type", 5
             }
@@ -137,8 +140,30 @@ sub show {
 
 sub suggest {
     foreach my $file (@files) {
-        foreach (@{$file->{suggestions}}) {
-            print "Would you like to ", $_->{type}, " in ", $file->{path}, "?\n"
+        foreach my $suggestion (@{$file->{suggestions}}) {
+            given ($suggestion->{type}) {
+                when (1) {
+                    print "Would you like to delete ", $suggestion->{path}, ", which has the same content as ", $file->{path}, "?\n"
+                }
+                when (2) {
+                    print "Would you like to delete ", $file->{path}, ", which is an empty file?\n"
+                }
+                when (3) {
+                    print "Would you like to delete ", $file->{path}, ", which appears to be an older version of ", $suggestion->{path}, "?\n"
+                }
+                when (4) {
+                    print "Would you like to delete ", $file->{path}, ", which is considered a temporary file?\n"
+                }
+                when (5) {
+                    print "Would you like to change the attributes of ", $file->{path}, ", to a more standard one?\n"
+                }
+                when (6) {
+                    print "Would you like to change the name of ", $file->{path}, ", which contains signs that are considered restricted?\n"
+                }
+                default {
+                    print "This suggestion has not been implemented yet"
+                }
+            }
         }
     }
 }
