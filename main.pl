@@ -140,6 +140,14 @@ sub delete_files_and_suggestions {
     }
 }
 
+sub replace_restricted_signs {
+    my $result = @_[0];
+    foreach (@{$config{RESTRICTED}}) {
+        $result =~ s/\Q$_\E/_/g;
+    }
+    return ($result);
+}
+
 sub suggest {
     foreach my $file (@files) {
         foreach my $suggestion (@{$file->{suggestions}}) {
@@ -178,6 +186,9 @@ sub suggest {
                 }
                 when (6) {
                     print "Would you like to change the name of ", $file->{path}, ", which contains signs that are considered restricted? [y/n]\n";
+                    if ("y\n" eq <STDIN>) {
+                        rename($file->{path}, replace_restricted_signs($file->{path}))
+                    }
                 }
                 when (7) {
                     print "Would you like to move ", $file->{path}, ", to, ", $config{ORIGIN_DIR}, "? [y/n]\n";
