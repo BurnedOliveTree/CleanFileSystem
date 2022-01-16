@@ -172,6 +172,9 @@ sub suggest {
                 }
                 when (5) {
                     print "Would you like to change the attributes of ", $file->{path}, ", to a more standard one? [y/n]\n";
+                    if ("y\n" eq <STDIN>) {
+                        chmod $config{ATTRIBUTES}, $file->{path};
+                    }
                 }
                 when (6) {
                     print "Would you like to change the name of ", $file->{path}, ", which contains signs that are considered restricted? [y/n]\n";
@@ -195,7 +198,5 @@ find(@files);
 suggest(@files);
 
 # TODO: origin_dir should have all the files
-# TODO: suggestion to user - delete all copies: files that have the same content as another, and have a later creation date
-# TODO: suggestion to user - in case of the same file name, suggest keeping only the newer one
 # TODO: suggestion to user - standarize file attributes, for example: rw-r–r–,
 # TODO: suggestion to user - change file name in case it contains restricted signs (for example ’:’, ’”’, ’.’, ’;’, ’*’, ’?’, ’$’, ’#’, ’‘’, ’|’, ’\’, ...) and replace them with a common substitute (for example ’_’)
