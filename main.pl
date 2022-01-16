@@ -3,7 +3,9 @@ use warnings;
 use autodie;
 
 use Data::Dumper;
+use File::Copy;
 use File::Basename;
+use File::Path;
 use File::stat;
 use Path::Tiny;
 use feature qw(switch);
@@ -148,6 +150,16 @@ sub replace_restricted_signs {
     return ($result);
 }
 
+sub move_to_origin {
+    my $result = @_[0];
+    $result =~ s/\Q$config{DATA_DIR}\E/\Q$config{ORIGIN_DIR}\E/;
+    $result =~ s/\\//g;
+    mkpath($result);
+    move(@_[0], $result) or die "Unable to move: $!";
+    push @deleted, @_[0];
+    print "moved ", @_[0], "\n";
+}
+
 sub suggest {
     foreach my $file (@files) {
         foreach my $suggestion (@{$file->{suggestions}}) {
@@ -187,11 +199,14 @@ sub suggest {
                 when (6) {
                     print "Would you like to change the name of ", $file->{path}, ", which contains signs that are considered restricted? [y/n]\n";
                     if ("y\n" eq <STDIN>) {
-                        rename($file->{path}, replace_restricted_signs($file->{path}))
+                        rename($file->{path}, replace_restricted_signs($file->{path}));
                     }
                 }
                 when (7) {
                     print "Would you like to move ", $file->{path}, ", to, ", $config{ORIGIN_DIR}, "? [y/n]\n";
+                    if ("y\n" eq <STDIN>) {
+                        move_to_origin($file->{path});
+                    }
                 }
                 default {
                     print "This suggestion has not been implemented yet!\n";
@@ -207,7 +222,3 @@ ls($data_dir);
 find(@files);
 # show(@files);
 suggest(@files);
-
-# TODO: origin_dir should have all the files
-# TODO: suggestion to user - standarize file attributes, for example: rw-r–r–,
-# TODO: suggestion to user - change file name in case it contains restricted signs (for example ’:’, ’”’, ’.’, ’;’, ’*’, ’?’, ’$’, ’#’, ’‘’, ’|’, ’\’, ...) and replace them with a common substitute (for example ’_’)
