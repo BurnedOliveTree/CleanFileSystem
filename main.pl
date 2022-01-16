@@ -69,17 +69,19 @@ sub find {
                 if ($file1->{date} < $file2->{date}) {
                     push @{$file1->{suggestions}}, {
                         "type", 1,
-                        "path", $file2->{path}
+                        "file", $file2
                     }
                 }
             }
 
             # check if there is a newer version of a file with the same name
             if ($file1->{name} eq $file2->{name}) {
-                if ($file1->{date} < $file2->{date}) {
-                    push @{$file1->{suggestions}}, {
-                        "type", 3,
-                        "path", $file2->{path}
+                if ($file1->{content} ne $file2->{content}) {
+                    if ($file1->{date} < $file2->{date}) {
+                        push @{$file1->{suggestions}}, {
+                            "type", 3,
+                            "file", $file2
+                        }
                     }
                 }
             }
@@ -141,10 +143,14 @@ sub delete_files_and_suggestions {
 sub suggest {
     foreach my $file (@files) {
         foreach my $suggestion (@{$file->{suggestions}}) {
+            next if ($suggestion->{file}->{path} ~~ @deleted);
             next if ($file->{path} ~~ @deleted);
             given ($suggestion->{type}) {
                 when (1) {
-                    print "Would you like to delete ", $suggestion->{path}, ", which has the same content as ", $file->{path}, "? [y/n]\n";
+                    print "Would you like to delete ", $suggestion->{file}->{path}, ", which has the same content as ", $file->{path}, "? [y/n]\n";
+                    if ("y\n" eq <STDIN>) {
+                        delete_files_and_suggestions($suggestion->{file});
+                    }
                 }
                 when (2) {
                     print "Would you like to delete ", $file->{path}, ", which is an empty file? [y/n]\n";
@@ -153,7 +159,10 @@ sub suggest {
                     }
                 }
                 when (3) {
-                    print "Would you like to delete ", $file->{path}, ", which appears to be an older version of ", $suggestion->{path}, "? [y/n]\n";
+                    print "Would you like to delete ", $file->{path}, ", which appears to be an older version of ", $suggestion->{file}->{path}, "? [y/n]\n";
+                    if ("y\n" eq <STDIN>) {
+                        delete_files_and_suggestions($file);
+                    }
                 }
                 when (4) {
                     print "Would you like to delete ", $file->{path}, ", which is considered a temporary file? [y/n]\n";
@@ -187,7 +196,6 @@ suggest(@files);
 
 # TODO: origin_dir should have all the files
 # TODO: suggestion to user - delete all copies: files that have the same content as another, and have a later creation date
-# TODO: suggestion to user - delete all empty and temporary (?) files
 # TODO: suggestion to user - in case of the same file name, suggest keeping only the newer one
 # TODO: suggestion to user - standarize file attributes, for example: rw-r–r–,
 # TODO: suggestion to user - change file name in case it contains restricted signs (for example ’:’, ’”’, ’.’, ’;’, ’*’, ’?’, ’$’, ’#’, ’‘’, ’|’, ’\’, ...) and replace them with a common substitute (for example ’_’)
