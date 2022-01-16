@@ -12,8 +12,8 @@ use feature qw(switch);
 
 ### READ CONFIG ###
 
-# my $config = path($ENV{"HOME"}, ".clean_files");
-my $config_path = path(".clean_files");
+my $config_path = path($ENV{"HOME"}, ".clean_files");
+# my $config_path = path(".clean_files");
 my %config = ();
 
 open (_FH, $config_path) or die "Unable to open config file: $!";
