@@ -131,6 +131,13 @@ sub find {
                 }
             }
         }
+
+        # check if file is not in origin_dir
+        if (!($file1->{path} =~ m/\Q$config{ORIGIN_DIR}\E/)) {
+            push @{$file1->{suggestions}}, {
+                "type", 7
+            }
+        }
     }
 }
 
@@ -160,8 +167,11 @@ sub suggest {
                 when (6) {
                     print "Would you like to change the name of ", $file->{path}, ", which contains signs that are considered restricted?\n"
                 }
+                when (7) {
+                    print "Would you like to move ", $file->{path}, ", to, ", $config{ORIGIN_DIR}, "?\n"
+                }
                 default {
-                    print "This suggestion has not been implemented yet"
+                    print "This suggestion has not been implemented yet!\n"
                 }
             }
         }
@@ -192,18 +202,3 @@ suggest(@files);
 
 # TODO: For each found file, the script should suggest an action:
 #           moving / coping to an "apriopate" location in the origin_dir
-#           deletion of duplicate / empty file / temporary file
-#           replacement of the old version with the new one
-#           replacement of the new version with the old one (if the contents are identical)
-#           changement of attributes
-#           renaming
-#           leaving the file unchanged
-
-# NOTE: The script doesn't have to this all at once
-# NOTE: Script have to be "resillient" to any signs in files and directories
-
-# TODO: Parameters in config:
-#           suggestes attributes value, for example: rw-r–r–
-#           set of signs that are considered restricted
-#           the sign that is the replacement for restricted signs
-#           set of extensions that are considered temporary
