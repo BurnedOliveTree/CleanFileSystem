@@ -3,6 +3,7 @@ use warnings;
 use autodie;
 
 use Data::Dumper;
+use Digest::MD5;
 use File::Copy;
 use File::Basename;
 use File::Path;
@@ -41,6 +42,12 @@ my $data_dir = path($config{DATA_DIR});
 
 ### INITIALIZE SUBROUTINES ###
 
+sub read_content {
+    open(FILE, @_[0]) or next;
+    binmode(FILE);
+    return Digest::MD5->new->addfile(*FILE)->hexdigest;
+}
+
 sub ls {
     foreach (@_) {
         my $iter = $_->iterator;
@@ -51,7 +58,7 @@ sub ls {
                 push @files, {
                     "name", basename($file),
                     "path", $file->stringify(),
-                    "content", $file->slurp_utf8(),
+                    "content", read_content($file->stringify()),
                     "attributes", stat($file)->mode & 0777, # this will show in decimal when printed
                     "date", stat($file)->mtime,
                     "suggestions", ()
